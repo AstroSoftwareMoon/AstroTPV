@@ -1,0 +1,29 @@
+{
+  "name": "AstroTPV · Punto de venta",
+  "short_name": "AstroTPV",
+  "description": "TPV para bares y tiendas: cobros, mesas, stock, cierre de caja y tickets. Funciona sin internet.",
+  "lang": "es",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
+  "background_color": "#0f1020",
+  "theme_color": "#6366f1",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "screenshots": [
+    { "src": "docs/screenshots/venta.png", "sizes": "1440x900", "type": "image/png", "form_factor": "wide", "label": "Pantalla de venta" },
+    { "src": "docs/screenshots/movil.png", "sizes": "780x1688", "type": "image/png", "form_factor": "narrow", "label": "Venta en el móvil" }
+  ],
+  "shortcuts": [
+    { "name": "Venta", "url": "./index.html#sell" },
+    { "name": "Mesas", "url": "./index.html#tables" },
+    { "name": "Caja", "url": "./index.html#cash" }
+  ]
+}
