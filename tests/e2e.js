@@ -109,11 +109,11 @@ const URL = `http://localhost:${PORT}/index.html`;
   // 100 + 9 (T1 efectivo) + 1,20 (resto mixto) − 2,50 (devolución) = 107,70
   assert.match(await page.textContent('.stat:has-text("Efectivo esperado")'), /107,70/);
   await page.click('.btn:has-text("Cerrar caja (Z)")');
-  await page.fill('.den:has-text("100 €") input', '1');
-  await page.fill('.den:has-text("5 €") input', '1');
-  await page.fill('.den:has-text("2 €") input', '1');
-  await page.fill('.den:has-text("50 c") input', '1');
-  await page.fill('.den:has-text("20 c") input', '1');
+  await page.fill('input[data-den="10000"]', '1');
+  await page.fill('input[data-den="500"]', '1');
+  await page.fill('input[data-den="200"]', '1');
+  await page.fill('input[data-den="50"]', '1');
+  await page.fill('input[data-den="20"]', '1');
   assert.match(await page.textContent('.diff'), /Cuadra/);
   await page.click('.modal .btn.primary:has-text("Cerrar caja")');
   await page.waitForSelector('.hero-card:has-text("Abrir caja")');

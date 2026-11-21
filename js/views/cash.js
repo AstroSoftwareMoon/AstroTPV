@@ -18,7 +18,7 @@
     const totalEl = h('strong', { class: 'den-total' });
     const update = () => { const t = C.countDenominations(counts); totalEl.textContent = App.money(t); onChange(t, counts); };
     const grid = h('div', { class: 'den-grid' }, C.DENOMINATIONS_EUR.map((d) => {
-      const inp = h('input', { class: 'input sm', type: 'number', min: 0, inputmode: 'numeric', placeholder: '0', oninput: () => { counts[d] = parseInt(inp.value, 10) || 0; update(); } });
+      const inp = h('input', { class: 'input sm', type: 'number', min: 0, inputmode: 'numeric', placeholder: '0', dataset: { den: d }, oninput: () => { counts[d] = parseInt(inp.value, 10) || 0; update(); } });
       return h('label', { class: 'den ' + (d >= 500 ? 'bill' : 'coin') }, h('span', null, d >= 100 ? (d / 100) + ' €' : d + ' c'), inp);
     }));
     update();
