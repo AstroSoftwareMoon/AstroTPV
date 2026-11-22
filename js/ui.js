@@ -134,8 +134,11 @@
             if (btn.disabled) return;
             btn.disabled = true;
             try {
-              const v = a.onClick ? await a.onClick(close, body) : a.value;
-              if (v !== false) close(v);
+              // Sólo un onClick que devuelve false mantiene el modal abierto; un value fijo siempre cierra
+              if (a.onClick) {
+                const v = await a.onClick(close, body);
+                if (v !== false) close(v);
+              } else close(a.value);
             } catch (e) {
               toast(e.message || String(e), 'error');
             } finally { btn.disabled = false; }

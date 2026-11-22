@@ -32,7 +32,7 @@
   };
 
   const App = {
-    VERSION: '1.1.0',
+    VERSION: '1.1.1',
     state: {
       settings: { ...DEFAULT_SETTINGS },
       user: null,
@@ -128,9 +128,9 @@
       P('Pan barra', 90, 4, 4, 2)
     ];
     const salt = DB.uid();
-    const admin = { id: DB.uid(), name: 'Administrador', role: 'admin', salt, pin: await DB.hashPin('1234', salt), color: '#7c3aed', createdAt: now };
+    const admin = { id: DB.uid(), name: 'Administrador', role: 'admin', salt, pin: await DB.hashPin('1234', salt), defaultPin: true, color: '#7c3aed', createdAt: now };
     const salt2 = DB.uid();
-    const staff = { id: DB.uid(), name: 'Camarero', role: 'staff', salt: salt2, pin: await DB.hashPin('0000', salt2), color: '#0891b2', createdAt: now };
+    const staff = { id: DB.uid(), name: 'Camarero', role: 'staff', salt: salt2, pin: await DB.hashPin('1234', salt2), defaultPin: true, color: '#0891b2', createdAt: now };
     await DB.tx(['settings', 'categories', 'products', 'users', 'stockMoves'], 'readwrite', async (a) => {
       await a.put('settings', { ...DEFAULT_SETTINGS });
       for (const c of cats) await a.put('categories', c);
@@ -518,15 +518,19 @@
         }, h('span', { class: 'avatar' }, (u.name[0] || '?').toUpperCase()), h('span', null, u.name), h('small', null, u.role === 'admin' ? 'Administrador' : 'Empleado')));
       }
     };
+    let entering = false;
     const tryLogin = async () => {
       if (!selected) { msg.textContent = 'Selecciona un usuario'; return; }
+      if (entering) return;
       const hashed = await DB.hashPin(pin, selected.salt);
       if (hashed === selected.pin) {
+        entering = true;
         App.state.user = selected;
         buildShell();
         await App.loadShift();
         App.audit('login');
-        App.go(App.state.view || 'sell');
+        await App.go(App.state.view || 'sell');
+        if (selected.role === 'admin' && selected.defaultPin && !selected.pinPromptShown) await firstLoginPinPrompt(selected);
       } else {
         msg.textContent = 'PIN incorrecto';
         pin = '';
@@ -564,6 +568,45 @@
     };
   }
   let loginKeyHandler = null;
+
+  /** Primera entrada del administrador con el PIN de fábrica: recomienda cambiarlo (una sola vez) */
+  async function firstLoginPinPrompt(user) {
+    const pin1 = h('input', { class: 'input pin-input', type: 'password', inputmode: 'numeric', autocomplete: 'new-password', placeholder: 'Nuevo PIN (4-8 dígitos)', autofocus: true });
+    const pin2 = h('input', { class: 'input pin-input', type: 'password', inputmode: 'numeric', autocomplete: 'new-password', placeholder: 'Repite el nuevo PIN' });
+    const changed = await modal({
+      title: 'Cambia el PIN de administrador',
+      dismissable: true,
+      body: h('div', { class: 'first-pin' },
+        h('div', { class: 'first-pin-icon' }, icon('lock', 32)),
+        h('p', null, 'Estás usando el PIN de fábrica ', h('strong', null, '1234'), ', que también tiene el usuario Camarero.'),
+        h('p', { class: 'muted' }, 'Te recomendamos cambiarlo ahora para que nadie más pueda hacer devoluciones, sacar dinero de la caja o cambiar los ajustes. También puedes hacerlo más tarde en Ajustes → Usuarios.'),
+        h('div', { class: 'form-grid' }, h('div', { class: 'field' }, h('label', null, 'Nuevo PIN'), pin1), h('div', { class: 'field' }, h('label', null, 'Repetir PIN'), pin2))),
+      actions: [
+        { label: 'Ahora no', value: false },
+        { label: 'Cambiar PIN', class: 'primary', icon: 'check', onClick: async () => {
+          const v = pin1.value.trim();
+          if (!/^\d{4,8}$/.test(v)) { toast('El PIN debe tener entre 4 y 8 dígitos', 'error'); return false; }
+          if (v !== pin2.value.trim()) { toast('Los PIN no coinciden', 'error'); return false; }
+          if (v === '1234') { toast('Elige un PIN distinto de 1234', 'error'); return false; }
+          for (const other of await DB.all('users')) {
+            if (other.id !== user.id && (await DB.hashPin(v, other.salt)) === other.pin) { toast('Ese PIN ya lo usa otro usuario', 'error'); return false; }
+          }
+          return v;
+        } }
+      ]
+    });
+    const fresh = (await DB.get('users', user.id)) || user;
+    fresh.pinPromptShown = true;
+    if (changed) {
+      fresh.salt = DB.uid();
+      fresh.pin = await DB.hashPin(changed, fresh.salt);
+      fresh.defaultPin = false;
+      App.audit('user', 'PIN de administrador cambiado');
+      toast('PIN cambiado', 'ok');
+    }
+    await DB.put('users', fresh);
+    if (App.state.user && App.state.user.id === fresh.id) App.state.user = fresh;
+  }
   function lock() { App.audit('logout'); showLogin(); }
   App.lock = lock;
 
@@ -600,7 +643,7 @@
       window.addEventListener('offline', updateOnline);
       if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
       await showLogin();
-      if (firstRun) setTimeout(() => toast('Bienvenido. PIN admin: 1234 · Camarero: 0000', 'ok'), 400);
+      if (firstRun) setTimeout(() => toast('Bienvenido. PIN inicial de todos los usuarios: 1234', 'ok'), 400);
     } catch (e) {
       console.error(e);
       document.getElementById('app').textContent = 'No se pudo iniciar AstroTPV: ' + e.message;

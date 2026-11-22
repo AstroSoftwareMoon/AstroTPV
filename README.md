@@ -70,7 +70,7 @@ npm start            # http://localhost:8080
 ```
 No necesita dependencias: es HTML + CSS + JavaScript puro.
 
-**Usuarios de demostración:** Administrador `1234` · Camarero `0000` (cámbialos en *Ajustes → Usuarios*).
+**Usuarios iniciales:** Administrador y Camarero, ambos con PIN `1234`. La primera vez que entra el administrador, AstroTPV le recomienda cambiar su PIN; los demás se cambian en *Ajustes → Usuarios*.
 
 ## ⌨️ Atajos
 

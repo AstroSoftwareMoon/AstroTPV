@@ -17,9 +17,22 @@ const URL = `http://localhost:${PORT}/index.html`;
   const step = (s) => console.log('→', s);
 
   await page.goto(URL);
-  step('Login como administrador (PIN 1234)');
+  step('Camarero entra con el PIN inicial 1234 (sin aviso de cambio)');
+  await page.click('.login-user:has-text("Camarero")');
+  for (const d of '1234') await page.click(`.login-pad .pad-key:text-is("${d}")`);
+  await page.waitForSelector('.sell');
+  await page.waitForTimeout(300);
+  assert.equal(await page.locator('.modal:has-text("Cambia el PIN")').count(), 0);
+  await page.click('.user-btn');
+
+  step('Administrador entra por primera vez (1234) → recomienda cambiar PIN');
   await page.click('.login-user:has-text("Administrador")');
   for (const d of '1234') await page.click(`.login-pad .pad-key:text-is("${d}")`);
+  await page.waitForSelector('.modal:has-text("Cambia el PIN de administrador")');
+  await page.fill('.modal input >> nth=0', '4321');
+  await page.fill('.modal input >> nth=1', '4321');
+  await page.click('.modal .btn.primary:has-text("Cambiar PIN")');
+  await page.waitForSelector('.overlay', { state: 'detached' });
   await page.waitForSelector('.sell');
 
   step('Venta directa: añadir productos');
@@ -57,15 +70,25 @@ const URL = `http://localhost:${PORT}/index.html`;
   await page.click('.product-tile:has-text("Café con leche")');
   await page.click('.product-tile:has-text("Café con leche")');
   await page.click('.product-tile:has-text("Croquetas")');
+  step('«Cancelar» en un diálogo de confirmación lo cierra sin vaciar el ticket');
+  await page.click('.cart-actions .btn:has-text("Vaciar")');
+  await page.click('.modal .btn:has-text("Cancelar")');
+  await page.waitForSelector('.overlay', { state: 'detached' });
+  assert.equal(await page.locator('.cart-line').count(), 2);
   await page.click('.cart-actions .btn:has-text("Guardar")');
   await page.waitForSelector('.table-tile.busy:has-text("Mesa 3")');
   assert.match(await page.textContent('.table-tile.busy:has-text("Mesa 3")'), /10,70/);
 
-  step('Recargar página: la mesa persiste (sin pérdida de datos)');
+  step('Recargar página: la mesa persiste y el admin entra con su nuevo PIN sin volver a ver el aviso');
   await page.reload();
   await page.click('.login-user:has-text("Administrador")');
   for (const d of '1234') await page.click(`.login-pad .pad-key:text-is("${d}")`);
+  await page.click('.login-pad .pad-key:text-is("OK")');
+  await page.waitForSelector('.login-msg:has-text("PIN incorrecto")');
+  for (const d of '4321') await page.click(`.login-pad .pad-key:text-is("${d}")`);
   await page.waitForSelector('.nav');
+  await page.waitForTimeout(300);
+  assert.equal(await page.locator('.modal:has-text("Cambia el PIN")').count(), 0);
   await page.click('.nav-btn[data-view="tables"]');
   await page.waitForSelector('.table-tile.busy:has-text("Mesa 3")');
 

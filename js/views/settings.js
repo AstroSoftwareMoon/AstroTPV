@@ -139,6 +139,7 @@
         for (const x of users) if (x.id !== u.id && (await DB.hashPin(pin.value, x.salt)) === x.pin) return toast('Ese PIN ya lo usa otro usuario', 'error');
         u.salt = DB.uid();
         u.pin = await DB.hashPin(pin.value, u.salt);
+        u.defaultPin = false;
       }
       await DB.put('users', u);
       if (App.state.user && App.state.user.id === u.id) App.state.user = u;

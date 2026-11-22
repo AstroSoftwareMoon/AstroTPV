@@ -9,7 +9,16 @@ async function login(page) {
   await page.click('.login-user:has-text("Administrador")');
   for (const d of '1234') await page.click(`.login-pad .pad-key:text-is("${d}")`);
   await page.waitForSelector('.nav');
+  // Primera entrada: aviso para cambiar el PIN (se captura una vez y se cierra con «Ahora no»)
+  const prompt = page.locator('.modal:has-text("Cambia el PIN")');
+  await prompt.waitFor({ timeout: 2000 }).catch(() => {});
+  if (await prompt.count()) {
+    if (!shotPin) { shotPin = true; await page.waitForTimeout(300); await page.screenshot({ path: path.join(OUT, 'cambiar-pin.png') }); }
+    await page.click('.modal .btn:has-text("Ahora no")');
+    await page.waitForSelector('.overlay', { state: 'detached' });
+  }
 }
+let shotPin = false;
 async function closeModals(page) {
   await page.evaluate(() => { const t = document.getElementById('toasts'); if (t) t.remove(); });
   while (await page.locator('.overlay').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(200); }

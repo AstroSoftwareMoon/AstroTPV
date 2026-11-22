@@ -1,7 +1,7 @@
 {
   "name": "astrotpv",
   "productName": "AstroTPV",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "TPV para bares y tiendas: cobros, mesas, stock, cierre de caja y tickets. Funciona sin internet.",
   "main": "electron/main.js",
   "author": "AstroSoftwareMoon",

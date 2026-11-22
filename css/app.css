@@ -245,6 +245,9 @@ details.card summary { cursor: pointer; }
 .pin-dots span.on { background: var(--accent); transform: scale(1.15); }
 .pin-dots.shake { animation: shake .35s; }
 @keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+.first-pin-icon { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); margin-bottom: 10px; }
+.first-pin p { line-height: 1.5; }
+.first-pin .form-grid { margin-top: 14px; }
 .login-msg { min-height: 22px; text-align: center; color: var(--danger); font-weight: 600; font-size: 14px; }
 .login-pad { margin: 8px 0 14px; }
 
