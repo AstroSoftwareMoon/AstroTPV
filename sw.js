@@ -1,11 +1,11 @@
 /* AstroTPV · Service Worker: caché del programa para funcionar 100 % sin conexión */
-const VERSION = 'astrotpv-v1.0.0';
+const VERSION = 'astrotpv-v1.1.0';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './css/app.css',
   './js/core.js', './js/db.js', './js/ui.js', './js/app.js',
   './js/views/sell.js', './js/views/tables.js', './js/views/products.js', './js/views/cash.js',
   './js/views/tickets.js', './js/views/reports.js', './js/views/settings.js',
-  './icons/icon.svg', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png'
+  './icons/icon.svg', './icons/mark.svg', './fonts/Outfit.ttf', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png'
 ];
 
 self.addEventListener('install', (e) => {

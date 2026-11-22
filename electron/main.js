@@ -18,7 +18,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     title: 'AstroTPV',
-    backgroundColor: '#0f1020',
+    backgroundColor: '#1e1e20',
     icon: path.join(ROOT, 'icons', 'icon-512.png'),
     autoHideMenuBar: true,
     webPreferences: { contextIsolation: true, sandbox: true, nodeIntegration: false, spellcheck: false }

@@ -32,7 +32,7 @@
   };
 
   const App = {
-    VERSION: '1.0.0',
+    VERSION: '1.1.0',
     state: {
       settings: { ...DEFAULT_SETTINGS },
       user: null,
@@ -477,7 +477,7 @@
       NAV.map((n) => h('button', { class: 'nav-btn', dataset: { view: n.id }, title: n.label + ' (' + n.key + ')', onclick: () => App.go(n.id) },
         icon(n.icon, 22), h('span', null, n.label))));
     const header = h('header', { class: 'hdr' },
-      h('div', { class: 'brand' }, h('img', { src: 'icons/icon.svg', alt: '', width: 28, height: 28 }), h('span', { id: 'hdr-brand' }, 'AstroTPV')),
+      h('div', { class: 'brand' }, h('span', { class: 'logo-mark', 'aria-hidden': 'true' }), h('span', { id: 'hdr-brand' }, 'AstroTPV')),
       h('div', { class: 'hdr-right' },
         h('span', { id: 'hdr-net', class: 'pill' }),
         h('button', { id: 'hdr-shift', class: 'pill', onclick: () => App.go('cash') }),
@@ -550,7 +550,7 @@
       h('button', { class: 'pad-key' + (k === 'OK' ? ' primary' : k === '⌫' ? ' alt' : ''), onclick: () => press(k) }, k)));
     app.appendChild(h('div', { class: 'login' },
       h('div', { class: 'login-card' },
-        h('div', { class: 'login-brand' }, h('img', { src: 'icons/icon.svg', alt: '', width: 56, height: 56 }),
+        h('div', { class: 'login-brand' }, h('span', { class: 'logo-mark lg', 'aria-hidden': 'true' }),
           h('div', null, h('h1', null, App.state.settings.businessName || 'AstroTPV'), h('p', { class: 'muted' }, 'AstroTPV · Punto de venta'))),
         userList, dots, msg, pad,
         h('p', { class: 'muted small center' }, navigator.onLine ? 'Funciona también sin conexión' : 'Modo sin conexión: todo se guarda en este equipo'))));

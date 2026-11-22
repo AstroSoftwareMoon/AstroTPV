@@ -1,7 +1,7 @@
 {
   "name": "astrotpv",
   "productName": "AstroTPV",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "TPV para bares y tiendas: cobros, mesas, stock, cierre de caja y tickets. Funciona sin internet.",
   "main": "electron/main.js",
   "author": "AstroSoftwareMoon",
@@ -28,7 +28,7 @@
     "directories": { "output": "release", "buildResources": "build" },
     "files": [
       "index.html", "manifest.webmanifest", "sw.js",
-      "css/**", "js/**", "icons/**", "electron/**"
+      "css/**", "js/**", "icons/**", "fonts/**", "electron/**"
     ],
     "win": { "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "portable", "arch": ["x64"] }], "icon": "icons/icon-512.png" },
     "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "shortcutName": "AstroTPV" },
