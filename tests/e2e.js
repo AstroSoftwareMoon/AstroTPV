@@ -23,7 +23,7 @@ const URL = `http://localhost:${PORT}/index.html`;
   await page.waitForSelector('.sell');
   await page.waitForTimeout(300);
   assert.equal(await page.locator('.modal:has-text("Cambia el PIN")').count(), 0);
-  await page.click('.user-btn');
+  await page.click('.side-user');
 
   step('Administrador entra por primera vez (1234) → recomienda cambiar PIN');
   await page.click('.login-user:has-text("Administrador")');

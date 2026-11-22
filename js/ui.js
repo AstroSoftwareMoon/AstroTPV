@@ -155,6 +155,8 @@
       modalStack.push(entry);
       requestAnimationFrame(() => {
         overlay.classList.add('show');
+        // No robar el foco si el usuario ya ha pulsado dentro del diálogo
+        if (dlg.contains(document.activeElement) && document.activeElement !== dlg) return;
         const f = dlg.querySelector('[autofocus]') || dlg.querySelector('input:not([type=checkbox]):not([type=file]),select,textarea');
         if (f) { f.focus(); if (f.select) f.select(); } else { dlg.tabIndex = -1; dlg.focus(); }
       });

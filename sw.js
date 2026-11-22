@@ -1,5 +1,5 @@
 /* AstroTPV · Service Worker: caché del programa para funcionar 100 % sin conexión */
-const VERSION = 'astrotpv-v1.1.1';
+const VERSION = 'astrotpv-v1.2.0';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest', './css/app.css',
   './js/core.js', './js/db.js', './js/ui.js', './js/app.js',

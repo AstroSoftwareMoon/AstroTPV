@@ -32,7 +32,7 @@
   };
 
   const App = {
-    VERSION: '1.1.1',
+    VERSION: '1.2.0',
     state: {
       settings: { ...DEFAULT_SETTINGS },
       user: null,
@@ -418,13 +418,13 @@
   // Navegación y cabecera
   // ------------------------------------------------------------------
   const NAV = [
-    { id: 'sell', label: 'Venta', icon: 'cart', key: 'F1' },
-    { id: 'tables', label: 'Mesas', icon: 'table', key: 'F2' },
-    { id: 'products', label: 'Stock', icon: 'box', key: 'F3' },
-    { id: 'cash', label: 'Caja', icon: 'cash', key: 'F5' },
-    { id: 'tickets', label: 'Tickets', icon: 'receipt', key: 'F6' },
-    { id: 'reports', label: 'Informes', icon: 'chart', key: 'F7' },
-    { id: 'settings', label: 'Ajustes', icon: 'gear', key: 'F8' }
+    { id: 'sell', label: 'Venta', icon: 'cart', key: 'F1', group: 0 },
+    { id: 'tables', label: 'Mesas', icon: 'table', key: 'F2', group: 0 },
+    { id: 'products', label: 'Stock', icon: 'box', key: 'F3', group: 1 },
+    { id: 'cash', label: 'Caja', icon: 'cash', key: 'F5', group: 1 },
+    { id: 'tickets', label: 'Tickets', icon: 'receipt', key: 'F6', group: 1 },
+    { id: 'reports', label: 'Informes', icon: 'chart', key: 'F7', group: 1 },
+    { id: 'settings', label: 'Ajustes', icon: 'gear', key: 'F8', group: 2 }
   ];
 
   let currentView = null;
@@ -447,48 +447,86 @@
   };
   App.refresh = () => App.go(App.state.view);
 
+  const each = (sel, fn) => document.querySelectorAll(sel).forEach(fn);
+
   function updateHeader() {
-    const el = document.getElementById('hdr-shift');
-    if (el) {
-      el.textContent = App.state.shift ? 'Caja abierta' : 'Caja cerrada';
-      el.className = 'pill ' + (App.state.shift ? 'ok' : 'off');
-    }
-    const u = document.getElementById('hdr-user');
-    if (u && App.state.user) u.textContent = App.state.user.name;
-    const b = document.getElementById('hdr-brand');
-    if (b) b.textContent = App.state.settings.businessName || 'AstroTPV';
+    const open = !!App.state.shift;
+    each('.js-shift', (el) => {
+      el.classList.toggle('ok', open);
+      el.classList.toggle('off', !open);
+      const t = el.querySelector('.js-shift-text') || el;
+      t.textContent = open ? 'Caja abierta' : 'Caja cerrada';
+    });
+    each('.js-user', (el) => { el.textContent = App.state.user ? App.state.user.name : ''; });
+    each('.js-user-initial', (el) => { el.textContent = App.state.user ? (App.state.user.name[0] || '?').toUpperCase() : ''; });
+    each('.js-user-role', (el) => { el.textContent = App.isAdmin() ? 'Administrador' : 'Empleado'; });
+    each('.js-brand', (el) => { el.textContent = App.state.settings.businessName || 'AstroTPV'; });
   }
   App.updateHeader = updateHeader;
 
   function updateOnline() {
-    const el = document.getElementById('hdr-net');
-    if (!el) return;
     const on = navigator.onLine;
-    clear(el).appendChild(icon(on ? 'wifi' : 'wifioff', 16));
-    el.appendChild(document.createTextNode(on ? ' En línea' : ' Sin conexión'));
-    el.className = 'pill ' + (on ? 'ok' : 'warn');
-    el.title = on ? 'Conectado. El TPV no necesita internet.' : 'Sin conexión: el TPV sigue funcionando y guardando todo en este dispositivo.';
+    each('.js-net', (el) => {
+      el.classList.toggle('ok', on);
+      el.classList.toggle('warn', !on);
+      el.title = on ? 'Conectado. El TPV no necesita internet.' : 'Sin conexión: el TPV sigue funcionando y guardando todo en este dispositivo.';
+      const ic = el.querySelector('.js-net-icon');
+      if (ic) UI.add(clear(ic), icon(on ? 'wifi' : 'wifioff', 18));
+      const t = el.querySelector('.js-net-text');
+      if (t) t.textContent = on ? 'En línea' : 'Sin conexión';
+    });
   }
 
+  /** Lleva a la venta y enfoca el buscador (también desde el cuadro de la barra lateral) */
+  App.focusSearch = async function () {
+    if (App.state.view !== 'sell') await App.go('sell');
+    const s = document.querySelector('.sell .search');
+    if (s) s.focus();
+  };
+
+  /**
+   * Estructura estilo AstroTune: barra lateral con la marca, un cuadro de búsqueda,
+   * las secciones con su icono y nombre, y al pie el estado, el usuario y Ajustes.
+   * En pantallas medianas se pliega a iconos; en el móvil pasa a una barra inferior.
+   */
   function buildShell() {
     const app = document.getElementById('app');
     clear(app);
-    const nav = h('nav', { class: 'nav', 'aria-label': 'Secciones' },
-      NAV.map((n) => h('button', { class: 'nav-btn', dataset: { view: n.id }, title: n.label + ' (' + n.key + ')', onclick: () => App.go(n.id) },
-        icon(n.icon, 22), h('span', null, n.label))));
-    const header = h('header', { class: 'hdr' },
-      h('div', { class: 'brand' }, h('span', { class: 'logo-mark', 'aria-hidden': 'true' }), h('span', { id: 'hdr-brand' }, 'AstroTPV')),
+    const row = (n) => h('button', { class: 'nav-btn', dataset: { view: n.id }, title: n.label + ' (' + n.key + ')', onclick: () => App.go(n.id) },
+      icon(n.icon, 20), h('span', { class: 'nav-label' }, n.label), h('kbd', { class: 'nav-key' }, n.key));
+    const divider = () => h('div', { class: 'side-divider', role: 'separator' });
+    const sidebar = h('nav', { class: 'nav sidebar', 'aria-label': 'Secciones' },
+      h('div', { class: 'side-brand' }, h('span', { class: 'logo-mark', 'aria-hidden': 'true' }), h('span', { class: 'side-brand-name js-brand' }, 'AstroTPV')),
+      h('button', { class: 'side-search', title: 'Buscar producto (F9)', onclick: () => App.focusSearch() },
+        icon('search', 18), h('span', { class: 'nav-label' }, 'Buscar producto'), h('kbd', { class: 'nav-key' }, 'F9')),
+      h('div', { class: 'side-group' }, NAV.filter((n) => n.group === 0).map(row)),
+      divider(),
+      h('div', { class: 'side-group' }, NAV.filter((n) => n.group === 1).map(row)),
+      h('div', { class: 'side-spacer' }),
+      divider(),
+      h('div', { class: 'side-status' },
+        h('div', { class: 'side-stat js-net' }, h('span', { class: 'js-net-icon' }), h('span', { class: 'nav-label js-net-text' })),
+        h('button', { class: 'side-stat js-shift', onclick: () => App.go('cash'), title: 'Ir a Caja' }, icon('cash', 18), h('span', { class: 'nav-label js-shift-text' })),
+        h('div', { class: 'side-stat clock', title: 'Hora' }, icon('history', 18), h('span', { class: 'nav-label js-clock' }))),
+      divider(),
+      h('button', { class: 'user-btn side-user', onclick: lock, title: 'Bloquear / cambiar usuario' },
+        h('span', { class: 'avatar sm js-user-initial' }),
+        h('span', { class: 'side-user-text nav-label' }, h('span', { class: 'js-user' }), h('small', { class: 'js-user-role' })),
+        icon('lock', 16)),
+      h('div', { class: 'side-group' }, NAV.filter((n) => n.group === 2).map(row)));
+    // Cabecera sólo para el móvil
+    const mobileHeader = h('header', { class: 'hdr' },
+      h('div', { class: 'brand' }, h('span', { class: 'logo-mark', 'aria-hidden': 'true' }), h('span', { class: 'js-brand' }, 'AstroTPV')),
       h('div', { class: 'hdr-right' },
-        h('span', { id: 'hdr-net', class: 'pill' }),
-        h('button', { id: 'hdr-shift', class: 'pill', onclick: () => App.go('cash') }),
-        h('span', { class: 'hdr-clock', id: 'hdr-clock' }),
-        h('button', { class: 'user-btn', onclick: lock, title: 'Bloquear / cambiar usuario' }, icon('user', 18), h('span', { id: 'hdr-user' }), icon('lock', 16))));
-    UI.add(app, header, h('div', { class: 'body' }, nav, h('main', { id: 'main', tabindex: '-1' })));
+        h('button', { class: 'pill js-shift', onclick: () => App.go('cash') }, h('span', { class: 'js-shift-text' })),
+        h('button', { class: 'm-user-btn', onclick: lock, title: 'Bloquear / cambiar usuario', 'aria-label': 'Bloquear' }, icon('lock', 18))));
+    UI.add(app, mobileHeader, h('div', { class: 'body' }, sidebar, h('main', { id: 'main', tabindex: '-1' })));
     updateOnline();
     updateHeader();
-    const tick = () => { const c = document.getElementById('hdr-clock'); if (c) c.textContent = C.formatTime(new Date()); };
+    const tick = () => each('.js-clock', (c) => { c.textContent = C.formatTime(new Date()); });
     tick();
-    setInterval(tick, 15000);
+    clearInterval(buildShell.timer);
+    buildShell.timer = setInterval(tick, 15000);
   }
 
   // ------------------------------------------------------------------
@@ -614,6 +652,7 @@
   document.addEventListener('keydown', (e) => {
     if (!App.state.user) { if (loginKeyHandler) loginKeyHandler(e); return; }
     if (UI.hasModal()) return;
+    if (e.key === 'F9' && App.state.view !== 'sell') { e.preventDefault(); App.focusSearch(); return; }
     const n = NAV.find((x) => x.key === e.key);
     if (n) { e.preventDefault(); App.go(n.id); return; }
     if (currentView && currentView.onKey) currentView.onKey(e);
