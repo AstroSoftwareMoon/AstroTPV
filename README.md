@@ -9,7 +9,7 @@ Cobros, mesas, stock, cierre de caja y tickets. **Funciona 100 % sin internet.**
 
 [![CI](https://github.com/AstroSoftwareMoon/AstroTPV/actions/workflows/ci.yml/badge.svg)](https://github.com/AstroSoftwareMoon/AstroTPV/actions/workflows/ci.yml)
 [![Escritorio](https://github.com/AstroSoftwareMoon/AstroTPV/actions/workflows/release.yml/badge.svg)](https://github.com/AstroSoftwareMoon/AstroTPV/actions/workflows/release.yml)
-[![Pages](https://github.com/AstroSoftwareMoon/AstroTPV/actions/workflows/pages.yml/badge.svg)](https://github.com/AstroSoftwareMoon/AstroTPV/actions/workflows/pages.yml)
+[![Web](https://img.shields.io/badge/web-astrosoftwaremoon.github.io%2FAstroTPV-black)](https://astrosoftwaremoon.github.io/AstroTPV/)
 
 <img src="docs/screenshots/venta.png" alt="Pantalla de venta" width="100%">
 
@@ -61,7 +61,7 @@ Descarga el instalador de la última [Release](https://github.com/AstroSoftwareM
 > Arranque en modo kiosco (pantalla completa fija): `AstroTPV --kiosk`.
 
 ### Opción 2 · Web instalable (PWA)
-Abre la versión publicada en GitHub Pages (`https://<usuario>.github.io/AstroTPV/`), pulsa **Instalar** en el navegador y listo:
+Abre **https://astrosoftwaremoon.github.io/AstroTPV/**, pulsa **Instalar** en el navegador y listo:
 desde ese momento abre y funciona **sin conexión**, también en tablets Android e iPad.
 
 ### Opción 3 · En local
@@ -92,7 +92,7 @@ Elige el ancho de papel en *Ajustes*. Para imprimir sin diálogo en Chrome/Edge 
 | Workflow | Cuándo | Qué hace |
 |---|---|---|
 | `ci.yml` | Cada push / PR | Sintaxis, tests unitarios, test E2E en Chromium (venta, mesas, división, stock, devolución, cierre Z y modo offline) y build web |
-| `pages.yml` | Push a `main` | Publica la web en GitHub Pages (activa *Settings → Pages → Source: GitHub Actions*) |
+| GitHub Pages | Cada push a la rama por defecto | Publica la web en https://astrosoftwaremoon.github.io/AstroTPV/ (*Settings → Pages → Deploy from a branch*, carpeta raíz) |
 | `release.yml` | Etiqueta `v*` o manual | Compila instaladores para Windows, Linux y macOS y crea la Release |
 
 Publicar una versión:
